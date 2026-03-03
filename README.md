@@ -88,7 +88,7 @@ Alzheimer's Disease (AD) is the most common cause of dementia, affecting over **
 
 | Property | Detail |
 |----------|--------|
-| **Source** | [Kaggle — OASIS MRI Dataset](https://www.kaggle.com/datasets/ninadaithal/imagesoasis) |
+| **Source** | [OASIS MRI Dataset](https://sites.wustl.edu/oasisbrains/) |
 | **Total images** | ~20,960 annotated MRI slices |
 | **Image type** | 2D axial T1-weighted MRI brain slices |
 | **Format** | JPG (stored in class-named folders) |
@@ -432,7 +432,7 @@ The modern full-stack version with a premium Next.js frontend and FastAPI backen
 #### Terminal 1 — FastAPI Backend
 
 ```bash
-cd "Alzeimher Projecttt done/backend"
+cd "[main project directory]/backend"
 
 # Create virtual environment
 python3 -m venv venv
@@ -457,7 +457,7 @@ INFO:     Application startup complete.
 #### Terminal 2 — Next.js Frontend
 
 ```bash
-cd "Alzeimher Projecttt done/alzheimer-frontend"
+cd "[main project directory]/alzheimer-frontend"
 
 # Install Node dependencies (first time only)
 npm install
