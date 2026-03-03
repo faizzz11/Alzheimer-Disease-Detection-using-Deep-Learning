@@ -1,0 +1,19 @@
+# Alzheimer's Disease Detection - Requirements
+# Core ML
+torch
+torchvision
+torchaudio
+
+# Web App
+streamlit
+
+# Data & Visualization
+numpy
+pandas
+matplotlib
+seaborn
+Pillow
+
+# ML Utilities
+scikit-learn
+tqdm

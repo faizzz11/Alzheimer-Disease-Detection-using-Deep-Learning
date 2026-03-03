@@ -1,0 +1,5 @@
+/Data
+/deployment
+/models/baseline_cnn.pth
+/models/efficientnet_b0.pth
+/models/vgg16.pth

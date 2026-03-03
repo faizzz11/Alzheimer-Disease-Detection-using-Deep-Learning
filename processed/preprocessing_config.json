@@ -1,0 +1,46 @@
+{
+  "img_size": 128,
+  "batch_size": 32,
+  "num_workers": 0,
+  "val_ratio": 0.15,
+  "test_ratio": 0.15,
+  "seed": 42,
+  "class_names": [
+    "Mild Dementia",
+    "Moderate Dementia",
+    "Non Demented",
+    "Very mild Dementia"
+  ],
+  "class_to_idx": {
+    "Mild Dementia": 0,
+    "Moderate Dementia": 1,
+    "Non Demented": 2,
+    "Very mild Dementia": 3
+  },
+  "imagenet_mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "imagenet_std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "num_classes": 4,
+  "class_weights": {
+    "0": 1.047701,
+    "1": 10.725146,
+    "2": 3.004095,
+    "3": 0.381765
+  },
+  "loss_weights": [
+    1.0477006435394287,
+    10.725146293640137,
+    3.0040950775146484,
+    0.3817651867866516
+  ],
+  "train_size": 14672,
+  "val_size": 3144,
+  "test_size": 3144
+}

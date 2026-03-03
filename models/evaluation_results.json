@@ -1,0 +1,74 @@
+{
+  "model_name": "resnet18",
+  "test_accuracy": 0.9681933842239185,
+  "macro_f1": 0.9635040855011305,
+  "weighted_f1": 0.9682826208168646,
+  "macro_precision": 0.9476365609604203,
+  "macro_recall": 0.9806642649450878,
+  "per_class_report": {
+    "Mild Dementia": {
+      "precision": 0.9446640316205533,
+      "recall": 0.9547270306258322,
+      "f1-score": 0.9496688741721855,
+      "support": 751.0
+    },
+    "Moderate Dementia": {
+      "precision": 0.9358974358974359,
+      "recall": 1.0,
+      "f1-score": 0.9668874172185431,
+      "support": 73.0
+    },
+    "Non Demented": {
+      "precision": 0.9257950530035336,
+      "recall": 1.0,
+      "f1-score": 0.9614678899082569,
+      "support": 262.0
+    },
+    "Very mild Dementia": {
+      "precision": 0.9841897233201581,
+      "recall": 0.967930029154519,
+      "f1-score": 0.9759921607055365,
+      "support": 2058.0
+    },
+    "accuracy": 0.9681933842239185,
+    "macro avg": {
+      "precision": 0.9476365609604203,
+      "recall": 0.9806642649450878,
+      "f1-score": 0.9635040855011305,
+      "support": 3144.0
+    },
+    "weighted avg": {
+      "precision": 0.9687607999514503,
+      "recall": 0.9681933842239185,
+      "f1-score": 0.9682826208168646,
+      "support": 3144.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      717,
+      1,
+      1,
+      32
+    ],
+    [
+      0,
+      73,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      262,
+      0
+    ],
+    [
+      42,
+      4,
+      20,
+      1992
+    ]
+  ],
+  "test_size": 3144
+}
