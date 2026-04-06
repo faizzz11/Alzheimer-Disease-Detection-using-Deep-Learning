@@ -53,7 +53,7 @@ export async function getPrediction(file: File): Promise<PredictionResult> {
         // fetch() itself threw — backend probably not running
         throw new Error(
             "Cannot connect to the analysis server. " +
-            "Please make sure the backend is running on http://localhost:8000"
+            `Please make sure the backend is running on ${API_BASE}`
         )
     }
 
@@ -75,10 +75,10 @@ export async function getPrediction(file: File): Promise<PredictionResult> {
         prediction: data.prediction,
         confidence: data.confidence,
         probabilities: {
-            "Non Demented":       data.probabilities["Non Demented"]       ?? 0,
+            "Non Demented": data.probabilities["Non Demented"] ?? 0,
             "Very Mild Dementia": data.probabilities["Very Mild Dementia"] ?? 0,
-            "Mild Dementia":      data.probabilities["Mild Dementia"]      ?? 0,
-            "Moderate Dementia":  data.probabilities["Moderate Dementia"]  ?? 0,
+            "Mild Dementia": data.probabilities["Mild Dementia"] ?? 0,
+            "Moderate Dementia": data.probabilities["Moderate Dementia"] ?? 0,
         },
         timestamp: data.timestamp,
         modelVersion: data.model_version ?? "v1.0.0-ResNet18",
@@ -116,8 +116,8 @@ export const stageSeverity: Record<string, { color: string; label: string; bg: s
  * Class probability bar colors.
  */
 export const classColors: Record<string, string> = {
-    "Non Demented":       "#16a34a",
+    "Non Demented": "#16a34a",
     "Very Mild Dementia": "#d97706",
-    "Mild Dementia":      "#ea580c",
-    "Moderate Dementia":  "#dc2626",
+    "Mild Dementia": "#ea580c",
+    "Moderate Dementia": "#dc2626",
 }
