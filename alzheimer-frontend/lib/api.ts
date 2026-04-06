@@ -26,8 +26,14 @@ export interface PredictionResult {
     inferenceTimeMs?: number
 }
 
-// Backend base URL — update this if deploying remotely
+// In production (Vercel/HTTPS), use the server-side proxy route to avoid
+// mixed-content blocking (HTTPS frontend → HTTP backend).
+// In local development, call the backend directly for speed.
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+const PREDICT_URL =
+    typeof window !== "undefined" && window.location.protocol === "https:"
+        ? "/api"          // production: proxy through Next.js API route
+        : API_BASE        // local dev: call FastAPI directly
 
 /**
  * Send the MRI image file to the FastAPI backend and return the
@@ -44,7 +50,7 @@ export async function getPrediction(file: File): Promise<PredictionResult> {
 
     let response: Response
     try {
-        response = await fetch(`${API_BASE}/predict`, {
+        response = await fetch(`${PREDICT_URL}/predict`, {
             method: "POST",
             body: formData,
             // No Content-Type header — browser sets multipart/form-data boundary automatically
