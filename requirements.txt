@@ -4,8 +4,8 @@ torch
 torchvision
 torchaudio
 
-# Web App
-streamlit
+# ── Web App
+# Streamlit dependencies removed, now pure FastAPI + Next.js
 
 # Data & Visualization
 numpy

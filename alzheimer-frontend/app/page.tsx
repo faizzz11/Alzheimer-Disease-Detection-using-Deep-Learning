@@ -8,7 +8,7 @@ import Footer from "@/components/Footer"
 
 // ─── Data ──────────────────────────────────────────────────────────────────
 const stats = [
-  { value: "98.2%", label: "Detection Accuracy" },
+  { value: "96.8%", label: "Detection Accuracy" },
   { value: "4", label: "Dementia Stages" },
   { value: "<3s", label: "Analysis Time" },
   { value: "5,121", label: "Training Images" },
@@ -167,7 +167,7 @@ export default function LandingPage() {
             }}
           >
             <Activity size={13} />
-            Final Year AI/ML Project · BE Computer Engineering
+            Developed by Creative Nexus, Led by Faiz Moulavi
           </div>
 
           {/* Main heading */}

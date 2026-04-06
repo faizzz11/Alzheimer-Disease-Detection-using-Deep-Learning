@@ -7,7 +7,6 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.x-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
 
 **A complete end-to-end deep learning project** — from raw MRI data to a production-grade full-stack web application — classifying brain MRI scans into 4 Alzheimer's dementia stages with **96.8% test accuracy**.
 
@@ -24,9 +23,7 @@
 - [Project Structure](#-project-structure)
 - [Notebooks Walkthrough](#-notebooks-walkthrough)
 - [Tech Stack](#-tech-stack)
-- [Quick Start](#-quick-start)
-  - [Option A — Streamlit App](#option-a--streamlit-app-classic)
-  - [Option B — Next.js + FastAPI Full Stack](#option-b--nextjs--fastapi-full-stack-new)
+- [Quick Start](#-quick-start)  - [Option B — Next.js + FastAPI Full Stack](#option-b--nextjs--fastapi-full-stack-new)
 - [API Reference](#-api-reference)
 - [Frontend Pages](#-frontend-pages)
 - [How It Works](#-how-it-works)
@@ -75,7 +72,7 @@ Alzheimer's Disease (AD) is the most common cause of dementia, affecting over **
                     └─────────────┬────────────────-┘
                                   │  JSON response
                     ┌─────────────▼────────────────-┐
-                    │   deployment/best_model.pth   │
+                    │   models/best_model.pth   │
                     │   ResNet-18 Fine-tuned         │
                     │   Val Acc: 96.28%              │
                     │   Test Acc: 96.82%             │
@@ -165,7 +162,6 @@ Alzeimher Projecttt done/
 │   ├── 05_model_training_transfer_learning.ipynb  # ResNet18, EfficientNet, VGG16
 │   ├── 06_model_evaluation.ipynb          # Confusion matrix, classification report
 │   ├── 07_model_saving_and_loading.ipynb  # Inference pipeline, JSON export
-│   └── 08_web_app_integration.ipynb       # Streamlit integration guide
 │
 ├── 📊 DATA
 │   └── Data/
@@ -192,9 +188,6 @@ Alzeimher Projecttt done/
 │       ├── val_files.csv                  # 3,144 validation paths + labels
 │       ├── test_files.csv                 # 3,144 test paths + labels
 │       └── preprocessing_config.json      # Full preprocessing config with class weights
-│
-├── 🌐 STREAMLIT APP (Classic)
-│   └── app.py                             # Full Streamlit web app
 │
 ├── ⚡ FASTAPI BACKEND (New)
 │   └── backend/
@@ -323,7 +316,7 @@ Unfreeze last 2 blocks → train end-to-end at a smaller learning rate
 
 - Saves all model checkpoints to `models/`
 - Generates comparison bar charts and training curves
-- Selects best model → saves to `models/best_model.pth` and `deployment/best_model.pth`
+- Selects best model → saves to `models/best_model.pth` and `models/best_model.pth`
 
 ### `06_model_evaluation.ipynb` — Rigorous Testing
 - Loads best model, runs inference on the full **3,144-image test set**
@@ -335,15 +328,10 @@ Unfreeze last 2 blocks → train end-to-end at a smaller learning rate
 
 ### `07_model_saving_and_loading.ipynb` — Deployment Pipeline
 - Saves model checkpoint as `{"model_state_dict": ..., "epoch": ..., "val_acc": ...}`
-- Exports `deployment/deploy_config.json` with all inference parameters
+- Exports `models/deploy_config.json` with all inference parameters
 - Implements and tests a clean `predict_single_image()` function
 - Verifies predictions are identical before and after save/load cycle
 - Tests on one image from each of the 4 classes
-
-### `08_web_app_integration.ipynb` — Integration Guide
-- Documents the Streamlit deployment architecture
-- Explains the preprocessing → inference → display pipeline
-- Provides launch instructions and cloud deployment notes
 
 ---
 
@@ -379,9 +367,7 @@ Unfreeze last 2 blocks → train end-to-end at a smaller learning rate
 | jsPDF | latest | Professional PDF report generation |
 | Framer Motion | 12 | Animations |
 
-### Classic App (Streamlit)
-| Library | Purpose |
-|---------|---------|
+---------|---------|
 | Streamlit | Web UI framework |
 | Matplotlib | Probability bar charts |
 
@@ -401,35 +387,11 @@ node --version
 
 ---
 
-### Option A — Streamlit App (Classic)
-
-The original Streamlit web app. Simpler setup, runs as a single Python process.
-
-```bash
-# 1. Navigate to project root
-cd "Alzeimher Projecttt done"
-
-# 2. Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate          # macOS/Linux
-# .venv\Scripts\activate           # Windows
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Run
-streamlit run app.py
-```
-
-Open [http://localhost:8501](http://localhost:8501) in your browser.
-
----
-
-### Option B — Next.js + FastAPI Full Stack (New)
+### Running the Application
 
 The modern full-stack version with a premium Next.js frontend and FastAPI backend.
 
-#### Terminal 1 — FastAPI Backend
+#### Terminal 1 — Backend
 
 ```bash
 cd "[main project directory]/backend"
@@ -449,12 +411,12 @@ You should see:
 ```
 [Startup] Loading Alzheimer's detection model ...
 [ModelLoader] Using device: mps          # or cuda / cpu
-[ModelLoader] Model loaded successfully from: .../deployment/best_model.pth
+[ModelLoader] Model loaded successfully from: .../models/best_model.pth
 [Startup] Model ready. Server is live at http://localhost:8000
 INFO:     Application startup complete.
 ```
 
-#### Terminal 2 — Next.js Frontend
+#### Terminal 2 — Frontend
 
 ```bash
 cd "[main project directory]/alzheimer-frontend"
@@ -554,7 +516,7 @@ Submit an MRI brain scan for classification.
 
 ## ⚙️ How It Works
 
-### Preprocessing Pipeline (identical in both Streamlit and FastAPI)
+### Preprocessing Pipeline
 
 ```python
 transforms.Compose([
@@ -657,8 +619,8 @@ Actual  Mild   [  717     1     1    32  ]   ← 4.4% missed (very mild confusio
 
 **`FileNotFoundError: Model file not found`**
 ```bash
-# Ensure deployment/best_model.pth exists
-ls "Alzeimher Projecttt done/deployment/best_model.pth"
+# Ensure models/best_model.pth exists
+ls "Alzeimher Projecttt done/models/best_model.pth"
 ```
 
 **`RuntimeError: Error(s) in loading state_dict`**
@@ -692,9 +654,9 @@ torchvision>=0.21.0
 - The image failed the MRI heuristic check (too colourful or lacks dark background)
 - Ensure you are uploading a real grayscale MRI brain scan
 
-**Different predictions between Streamlit and Next.js**
-Both apps must use:
-- Same model file: `deployment/best_model.pth` ✅
+**Different predictions across environments**
+Ensure you use:
+- Same model file: `models/best_model.pth` ✅
 - Same image size: `128×128` ✅
 - Same Dropout: `nn.Dropout(0.3)` ✅
 - Same checkpoint key: `checkpoint["model_state_dict"]` ✅
@@ -714,7 +676,7 @@ Dataset: [OASIS MRI Dataset](https://www.oasis-brains.org/) — publicly availab
 **Final Year Project**
 *Data-Driven Framework for Early Detection of Alzheimer's Disease Using MRI Brain Images*
 
-Built with PyTorch · FastAPI · Next.js · Streamlit
+Built with PyTorch · FastAPI · Next.js
 
 ---
 

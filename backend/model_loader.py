@@ -31,10 +31,8 @@ CLASS_NAMES = [
 NUM_CLASSES = len(CLASS_NAMES)
 
 # ── Resolve model path ─────────────────────────────────────────────────────────
-# Streamlit uses deployment/best_model.pth (NOT models/best_model.pth)
-# We must use the SAME file to produce identical predictions.
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(_THIS_DIR, "..", "deployment", "best_model.pth")
+MODEL_PATH = os.path.join(_THIS_DIR, "..", "models", "best_model.pth")
 
 # ── Globals ───────────────────────────────────────────────────────────────────
 _model: nn.Module | None = None
