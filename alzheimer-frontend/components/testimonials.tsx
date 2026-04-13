@@ -1,6 +1,5 @@
-"use client";
 import { Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -62,7 +61,7 @@ export function Testimonials() {
 
 const LightningIcon = ({ className }: { className?: string }) => (
   <svg className={cn("w-6 h-6 text-[#FF6B2B]", className)} viewBox="0 0 49 67" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <g filter="url(#filter0_di_zenit_testimonial)">
+    <g filter="url(#filter0_di_neuroscan_testimonial)">
       <motion.path
         d="M37.6792 21.5018H29.1957C28.5839 21.5018 28.1155 20.9573 28.2069 20.3523L29.8985 9.16102C29.954 8.79514 29.9365 8.4203 29.8473 8.06263C29.758 7.70496 29.5991 7.37304 29.3817 7.08999C29.1643 6.80694 28.8935 6.57957 28.5883 6.42371C28.283 6.26785 27.9507 6.18724 27.6143 6.1875H15.6911C15.1436 6.18768 14.6139 6.4019 14.1961 6.7921C13.7783 7.18231 13.4995 7.72322 13.4092 8.31874L9.55125 33.8425C9.49578 34.2082 9.51322 34.5828 9.60233 34.9403C9.69145 35.2978 9.85012 35.6296 10.0673 35.9126C10.2845 36.1956 10.5549 36.423 10.8599 36.5791C11.1649 36.7351 11.497 36.816 11.8331 36.8161H20.0903C20.6426 36.8161 21.0903 37.2638 21.0903 37.8161V53.534C21.0903 54.5549 22.4401 54.9196 22.9542 54.0376L39.6278 25.435C39.8528 25.0493 39.9794 24.6038 39.9942 24.1455C40.0091 23.6871 39.9117 23.2328 39.7123 22.8303C39.5129 22.4278 39.2189 22.092 38.8611 21.8583C38.5033 21.6245 38.095 21.5013 37.6792 21.5018Z"
         fill="#D4611E"
@@ -72,7 +71,7 @@ const LightningIcon = ({ className }: { className?: string }) => (
       />
     </g>
     <defs>
-      <filter id="filter0_di_zenit_testimonial" x="0.519531" y="0.1875" width="48.4766" height="66.3482" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+      <filter id="filter0_di_neuroscan_testimonial" x="0.519531" y="0.1875" width="48.4766" height="66.3482" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
         <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
         <feOffset dy="3" />

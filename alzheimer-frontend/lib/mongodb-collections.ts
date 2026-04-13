@@ -2,7 +2,7 @@ import getMongoClient from "@/lib/mongodb";
 import type { Account, User } from "@/models/User";
 
 function dbName() {
-  return process.env.MONGODB_DB_NAME ?? "zenit";
+  return process.env.MONGODB_DB_NAME ?? "neuroscan";
 }
 
 export async function getCollections() {

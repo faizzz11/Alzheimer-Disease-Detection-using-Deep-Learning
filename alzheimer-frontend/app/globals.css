@@ -111,8 +111,8 @@ html {
   animation: fadeIn 0.22s ease-out forwards;
 }
 
-.font-zenit-display {
-  font-family: var(--font-zenit-display), "Source Serif 4", Georgia, serif;
+.font-neuroscan-display {
+  font-family: var(--font-neuroscan-display), "Source Serif 4", Georgia, serif;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -128,7 +128,7 @@ html {
 }
 
 /* Orbit new-tab style: animated full-bleed hero (see `hero-background.png`) */
-.zenit-chat-hero-bg {
+.neuroscan-chat-hero-bg {
   opacity: 0.48;
   background-image: url("/hero-background.png");
   background-size: cover;
@@ -136,12 +136,12 @@ html {
   background-position: 50% 50%;
   will-change: transform, filter, background-position;
   animation:
-    zenit-hero-drift 92s cubic-bezier(0.42, 0, 0.58, 1) infinite,
-    zenit-hero-parallax 108s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite,
-    zenit-hero-light 48s ease-in-out infinite alternate;
+    neuroscan-hero-drift 92s cubic-bezier(0.42, 0, 0.58, 1) infinite,
+    neuroscan-hero-parallax 108s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite,
+    neuroscan-hero-light 48s ease-in-out infinite alternate;
 }
 
-@keyframes zenit-hero-drift {
+@keyframes neuroscan-hero-drift {
   0%,
   100% {
     transform: translate(0%, 0%) scale(1.075);
@@ -157,7 +157,7 @@ html {
   }
 }
 
-@keyframes zenit-hero-parallax {
+@keyframes neuroscan-hero-parallax {
   0%,
   100% {
     background-position: 49.4% 50.6%;
@@ -173,7 +173,7 @@ html {
   }
 }
 
-@keyframes zenit-hero-light {
+@keyframes neuroscan-hero-light {
   0% {
     filter: brightness(1) saturate(1);
   }
@@ -183,7 +183,7 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zenit-chat-hero-bg {
+  .neuroscan-chat-hero-bg {
     animation: none;
     transform: translate(0, 0) scale(1.06);
     background-position: 50% 50%;
@@ -191,7 +191,7 @@ html {
   }
 }
 
-@keyframes zenit-chat-slide-up {
+@keyframes neuroscan-chat-slide-up {
   from {
     opacity: 0;
     transform: translateY(12px);
@@ -202,11 +202,11 @@ html {
   }
 }
 
-.zenit-chat-view-enter {
-  animation: zenit-chat-slide-up 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+.neuroscan-chat-view-enter {
+  animation: neuroscan-chat-slide-up 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-@keyframes zenit-chat-typing-glow {
+@keyframes neuroscan-chat-typing-glow {
   0%,
   100% {
     box-shadow:
@@ -220,20 +220,20 @@ html {
   }
 }
 
-@keyframes zenit-chat-typing-sweep {
+@keyframes neuroscan-chat-typing-sweep {
   to {
     transform: translateX(220%) skewX(-10deg);
   }
 }
 
-.zenit-chat-typing-pill {
+.neuroscan-chat-typing-pill {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  animation: zenit-chat-typing-glow 2.4s ease-in-out infinite;
+  animation: neuroscan-chat-typing-glow 2.4s ease-in-out infinite;
 }
 
-.zenit-chat-typing-pill::before {
+.neuroscan-chat-typing-pill::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -246,27 +246,27 @@ html {
     transparent 100%
   );
   transform: translateX(-120%) skewX(-10deg);
-  animation: zenit-chat-typing-sweep 2.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: neuroscan-chat-typing-sweep 2.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zenit-chat-typing-pill {
+  .neuroscan-chat-typing-pill {
     animation: none;
   }
-  .zenit-chat-typing-pill::before {
+  .neuroscan-chat-typing-pill::before {
     animation: none;
     opacity: 0;
   }
 }
 
 /* Suggestion card CTA: diagonal shine sweep on hover */
-.zenit-shine-btn {
+.neuroscan-shine-btn {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
-.zenit-shine-btn::after {
+.neuroscan-shine-btn::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -282,27 +282,27 @@ html {
   transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
 }
-.suggestion-card:hover .zenit-shine-btn::after {
+.suggestion-card:hover .neuroscan-shine-btn::after {
   transform: translateX(120%) skewX(-12deg);
 }
 @media (prefers-reduced-motion: reduce) {
-  .zenit-shine-btn::after {
+  .neuroscan-shine-btn::after {
     transition: none;
     transform: none;
     opacity: 0;
   }
-  .suggestion-card:hover .zenit-shine-btn::after {
+  .suggestion-card:hover .neuroscan-shine-btn::after {
     transform: none;
   }
 }
 
 /* Chat thread avatars: Zenit orange sphere + gloss shine (not purple) */
-.zenit-chat-avatar {
+.neuroscan-chat-avatar {
   position: relative;
   border-radius: 9999px;
   flex-shrink: 0;
 }
-.zenit-chat-avatar::before {
+.neuroscan-chat-avatar::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -315,7 +315,7 @@ html {
   );
   pointer-events: none;
 }
-.zenit-chat-avatar::after {
+.neuroscan-chat-avatar::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -325,19 +325,19 @@ html {
     inset 0 -1px 0 rgba(0, 0, 0, 0.06);
   pointer-events: none;
 }
-.zenit-chat-avatar--ai {
+.neuroscan-chat-avatar--ai {
   background: linear-gradient(145deg, #ffb38a 0%, #ee602c 42%, #9a3412 100%);
   box-shadow:
     0 4px 16px -4px rgba(238, 96, 44, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
-.zenit-chat-avatar--user {
+.neuroscan-chat-avatar--user {
   background: linear-gradient(145deg, #fec89a 0%, #ee602c 38%, #7c2d12 100%);
   box-shadow:
     0 4px 16px -4px rgba(238, 96, 44, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
-.zenit-chat-avatar--user img {
+.neuroscan-chat-avatar--user img {
   position: relative;
   z-index: 1;
 }
