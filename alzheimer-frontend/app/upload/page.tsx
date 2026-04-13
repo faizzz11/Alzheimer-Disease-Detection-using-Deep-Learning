@@ -13,11 +13,11 @@ import {
     ArrowRight,
     FileImage,
 } from "lucide-react"
-import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { Button } from "@/components/button"
 import { getPrediction } from "@/lib/api"
 
-// ─────────────────────────────────────────────────────────────────────────────
 type UploadState = "idle" | "preview" | "analyzing" | "done" | "error"
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
@@ -29,7 +29,6 @@ function formatBytes(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 export default function UploadPage() {
     const router = useRouter()
     const inputRef = useRef<HTMLInputElement>(null)
@@ -41,7 +40,6 @@ export default function UploadPage() {
     const [error, setError] = useState<string | null>(null)
     const [progress, setProgress] = useState(0)
 
-    // ── File validation ───────────────────────────────────────────────────────
     const validateAndSet = useCallback((f: File) => {
         setError(null)
         if (!ACCEPTED_TYPES.includes(f.type)) {
@@ -58,7 +56,6 @@ export default function UploadPage() {
         setState("preview")
     }, [])
 
-    // ── Drag handlers ─────────────────────────────────────────────────────────
     const onDrop = useCallback(
         (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault()
@@ -74,7 +71,6 @@ export default function UploadPage() {
         if (selected) validateAndSet(selected)
     }
 
-    // ── Reset ─────────────────────────────────────────────────────────────────
     const reset = () => {
         if (preview) URL.revokeObjectURL(preview)
         setFile(null)
@@ -85,14 +81,12 @@ export default function UploadPage() {
         if (inputRef.current) inputRef.current.value = ""
     }
 
-    // ── Analyze ───────────────────────────────────────────────────────────────
     const analyze = async () => {
         if (!file) return
         setState("analyzing")
         setProgress(0)
         setError(null)
 
-        // Animate progress bar while waiting for real API response
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 88) {
@@ -104,298 +98,120 @@ export default function UploadPage() {
         }, 250)
 
         try {
-            // ─── Real API call to FastAPI backend ───────────────────────────
             const result = await getPrediction(file)
-
-            // Complete progress bar
             clearInterval(interval)
             setProgress(100)
             setState("done")
-
-            // Store result + image in sessionStorage for Results page
             sessionStorage.setItem("prediction", JSON.stringify(result))
             sessionStorage.setItem("mriImage", preview!)
-
-            // Short delay then navigate
             await new Promise((r) => setTimeout(r, 600))
             router.push("/results")
         } catch (err: unknown) {
             clearInterval(interval)
             setState("error")
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Analysis failed. Please try again."
+            const message = err instanceof Error ? err.message : "Analysis failed. Please try again."
             setError(message)
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     return (
-        <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
+        <div className="bg-gray-50 min-h-screen">
             <Navbar />
 
-            <main
-                style={{
-                    paddingTop: "96px",
-                    paddingBottom: "80px",
-                    maxWidth: "860px",
-                    margin: "0 auto",
-                    padding: "96px 24px 80px",
-                }}
-            >
-                {/* Page Header */}
-                <div
-                    style={{
-                        textAlign: "center",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "16px",
-                        marginBottom: "48px",
-                    }}
-                >
-                    <div
-                        style={{
-                            width: 56,
-                            height: 56,
-                            borderRadius: "16px",
-                            background: "linear-gradient(135deg, #0077B6, #00B4D8)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0px 8px 24px rgba(0,119,182,0.30)",
-                        }}
-                    >
-                        <Brain size={28} color="white" strokeWidth={1.8} />
+            <main className="pt-32 pb-20 max-w-4xl mx-auto px-6">
+                <div className="flex flex-col items-center gap-4 text-center mb-12">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FFA756] to-[#EE602C] flex items-center justify-center shadow-lg">
+                        <Brain size={32} color="white" />
                     </div>
-                    <h1
-                        style={{
-                            fontFamily: "'Instrument Serif', Georgia, serif",
-                            fontSize: "clamp(28px, 4vw, 48px)",
-                            fontWeight: 400,
-                            color: "#0A1628",
-                            lineHeight: 1.15,
-                        }}
-                    >
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mt-4">
                         Upload MRI Brain Scan
                     </h1>
-                    <p style={{ fontSize: "17px", color: "#64748b", maxWidth: "500px", lineHeight: 1.65 }}>
+                    <p className="text-lg text-gray-500 max-w-xl">
                         Upload a brain MRI image and let our AI classify the Alzheimer's stage instantly.
                     </p>
                 </div>
 
-                {/* Upload Card */}
-                <div
-                    style={{
-                        background: "#fff",
-                        border: "1px solid rgba(15,23,42,0.08)",
-                        borderRadius: "20px",
-                        boxShadow: "0px 4px 24px rgba(0,0,0,0.06)",
-                        overflow: "hidden",
-                    }}
-                >
-                    {/* Upload Zone */}
+                <div className="bg-white border text-center border-gray-200 rounded-3xl shadow-sm overflow-hidden mb-12">
                     {state === "idle" && (
                         <div
-                            className={`upload-zone${dragOver ? " drag-over" : ""}`}
-                            style={{
-                                margin: "24px",
-                                padding: "56px 24px",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "20px",
-                                cursor: "pointer",
-                                minHeight: "320px",
-                            }}
+                            className={`m-6 p-14 flex flex-col items-center justify-center gap-5 cursor-pointer rounded-2xl border-2 border-dashed transition-all ${dragOver ? "border-[#EE602C] bg-orange-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}
                             onClick={() => inputRef.current?.click()}
                             onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
                             onDragLeave={() => setDragOver(false)}
                             onDrop={onDrop}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
-                            aria-label="Upload MRI image"
-                            id="upload-zone"
                         >
-                            <div
-                                style={{
-                                    width: 72,
-                                    height: 72,
-                                    borderRadius: "50%",
-                                    background: dragOver ? "rgba(0,119,182,0.12)" : "rgba(0,119,182,0.06)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    transition: "all 0.2s ease",
-                                }}
-                            >
-                                <Upload size={28} color={dragOver ? "#0077B6" : "#94a3b8"} />
+                            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${dragOver ? "bg-orange-100" : "bg-gray-100"}`}>
+                                <Upload size={32} className={dragOver ? "text-[#EE602C]" : "text-gray-400"} />
                             </div>
-
-                            <div style={{ textAlign: "center" }}>
-                                <p style={{ fontSize: "17px", fontWeight: 600, color: "#0f172a", marginBottom: "6px" }}>
+                            <div>
+                                <p className="text-lg font-semibold text-gray-900 mb-1">
                                     {dragOver ? "Drop your MRI scan here" : "Drag & drop MRI image"}
                                 </p>
-                                <p style={{ fontSize: "14px", color: "#94a3b8" }}>or click to browse files</p>
+                                <p className="text-sm text-gray-500">or click to browse files</p>
                             </div>
-
-                            <div
-                                style={{
-                                    display: "flex",
-                                    gap: "8px",
-                                    flexWrap: "wrap",
-                                    justifyContent: "center",
-                                }}
-                            >
+                            <div className="flex gap-2 flex-wrap justify-center mt-2">
                                 {["JPG", "PNG", "WEBP", "GIF"].map((fmt) => (
-                                    <span
-                                        key={fmt}
-                                        style={{
-                                            padding: "3px 10px",
-                                            background: "rgba(0,119,182,0.06)",
-                                            border: "1px solid rgba(0,119,182,0.15)",
-                                            borderRadius: "99px",
-                                            fontSize: "12px",
-                                            fontWeight: 500,
-                                            color: "#0077B6",
-                                        }}
-                                    >
+                                    <span key={fmt} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
                                         {fmt}
                                     </span>
                                 ))}
-                                <span style={{ fontSize: "12px", color: "#94a3b8", alignSelf: "center" }}>
-                                    · Max {MAX_FILE_MB} MB
-                                </span>
+                                <span className="text-xs text-gray-400 self-center ml-2">· Max {MAX_FILE_MB} MB</span>
                             </div>
                         </div>
                     )}
 
-                    {/* Preview State */}
                     {(state === "preview" || state === "analyzing" || state === "done") && file && preview && (
-                        <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
-                            {/* Image preview */}
-                            <div
-                                style={{
-                                    display: "flex",
-                                    gap: "20px",
-                                    alignItems: "flex-start",
-                                    flexWrap: "wrap",
-                                }}
-                            >
-                                {/* MRI thumbnail */}
-                                <div
-                                    style={{
-                                        position: "relative",
-                                        width: "200px",
-                                        height: "200px",
-                                        borderRadius: "12px",
-                                        overflow: "hidden",
-                                        border: "1px solid rgba(15,23,42,0.10)",
-                                        background: "#000",
-                                        flexShrink: 0,
-                                    }}
-                                >
-                                    <Image
-                                        src={preview}
-                                        alt="MRI preview"
-                                        fill
-                                        style={{ objectFit: "cover" }}
-                                    />
+                        <div className="p-8 flex flex-col gap-8">
+                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                                <div className="relative w-full md:w-56 h-56 rounded-2xl overflow-hidden border border-gray-200 bg-black shrink-0">
+                                    <Image src={preview} alt="MRI preview" fill className="object-cover" />
                                 </div>
-
-                                {/* File details */}
-                                <div style={{ display: "flex", flexDirection: "column", gap: "12px", flex: 1, minWidth: "200px" }}>
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "12px",
-                                            padding: "16px",
-                                            background: "#f8fafc",
-                                            borderRadius: "12px",
-                                            border: "1px solid rgba(15,23,42,0.06)",
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                width: 40,
-                                                height: 40,
-                                                borderRadius: "10px",
-                                                background: "rgba(0,119,182,0.08)",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                flexShrink: 0,
-                                            }}
-                                        >
-                                            <FileImage size={20} color="#0077B6" />
+                                <div className="flex flex-col gap-4 flex-1 w-full text-left">
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+                                            <FileImage size={24} className="text-[#EE602C]" />
                                         </div>
-                                        <div>
-                                            <p style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a", wordBreak: "break-all" }}>
-                                                {file.name}
-                                            </p>
-                                            <p style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                                        <div className="overflow-hidden">
+                                            <p className="text-sm font-semibold text-gray-900 truncate">{file.name}</p>
+                                            <p className="text-xs text-gray-500 mt-1">
                                                 {formatBytes(file.size)} · {file.type.split("/")[1].toUpperCase()}
                                             </p>
                                         </div>
                                     </div>
-
-                                    {/* Checklist */}
-                                    {[
-                                        "Image loaded successfully",
-                                        "Format validated",
-                                        "Size within limits",
-                                    ].map((item) => (
-                                        <div key={item} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                            <CheckCircle2 size={15} color="#16a34a" />
-                                            <span style={{ fontSize: "13px", color: "#475569" }}>{item}</span>
-                                        </div>
-                                    ))}
-
+                                    <div className="space-y-3">
+                                        {["Image loaded successfully", "Format validated", "Size within limits"].map((item) => (
+                                            <div key={item} className="flex items-center gap-2">
+                                                <CheckCircle2 size={16} className="text-green-500" />
+                                                <span className="text-sm text-gray-600">{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                     {state === "preview" && (
-                                        <button
-                                            onClick={reset}
-                                            style={{
-                                                display: "inline-flex",
-                                                alignItems: "center",
-                                                gap: "6px",
-                                                padding: "8px 16px",
-                                                background: "rgba(220,38,38,0.06)",
-                                                border: "1px solid rgba(220,38,38,0.15)",
-                                                borderRadius: "8px",
-                                                color: "#dc2626",
-                                                fontSize: "13px",
-                                                fontWeight: 500,
-                                                cursor: "pointer",
-                                                width: "fit-content",
-                                            }}
-                                        >
-                                            <X size={14} /> Remove
+                                        <button onClick={reset} className="inline-flex items-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 w-max mt-2 transition-colors">
+                                            <X size={16} /> Remove
                                         </button>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Progress bar (while analyzing) */}
                             {(state === "analyzing" || state === "done") && (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <span style={{ fontSize: "14px", fontWeight: 500, color: "#0077B6" }}>
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-[#EE602C]">
                                             {state === "done" ? "Analysis complete" : "Analyzing MRI scan..."}
                                         </span>
-                                        <span style={{ fontSize: "14px", fontWeight: 600, color: "#0077B6" }}>
+                                        <span className="text-sm font-bold text-[#EE602C]">
                                             {Math.round(progress)}%
                                         </span>
                                     </div>
-                                    <div className="progress-bar">
-                                        <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+                                    <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                                        <div className="bg-gradient-to-r from-[#FFA756] to-[#EE602C] h-full transition-all duration-300" style={{ width: `${progress}%` }} />
                                     </div>
                                     {state === "analyzing" && (
-                                        <p style={{ fontSize: "13px", color: "#94a3b8" }}>
-                                            Running through ResNet-18 model — classifying across 4 dementia stages...
+                                        <p className="text-sm text-gray-500 text-left">
+                                            Running through ResNet-50 model — classifying across 4 dementia stages...
                                         </p>
                                     )}
                                 </div>
@@ -403,189 +219,68 @@ export default function UploadPage() {
                         </div>
                     )}
 
-                    {/* Error state */}
                     {state === "error" && (
-                        <div
-                            style={{
-                                margin: "24px",
-                                padding: "20px",
-                                background: "rgba(220,38,38,0.05)",
-                                border: "1px solid rgba(220,38,38,0.20)",
-                                borderRadius: "12px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                            }}
-                        >
-                            <AlertCircle size={20} color="#dc2626" />
-                            <p style={{ fontSize: "14px", color: "#dc2626" }}>{error}</p>
+                        <div className="m-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+                            <AlertCircle size={20} className="text-red-600" />
+                            <p className="text-sm text-red-600">{error}</p>
                         </div>
                     )}
 
-                    {/* Inline file error (non-state error) */}
                     {error && state === "idle" && (
-                        <div
-                            style={{
-                                margin: "0 24px 16px",
-                                padding: "16px",
-                                background: "rgba(220,38,38,0.05)",
-                                border: "1px solid rgba(220,38,38,0.20)",
-                                borderRadius: "12px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "12px",
-                            }}
-                        >
-                            <AlertCircle size={18} color="#dc2626" />
-                            <p style={{ fontSize: "14px", color: "#dc2626" }}>{error}</p>
+                        <div className="mx-6 mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+                            <AlertCircle size={18} className="text-red-600" />
+                            <p className="text-sm text-red-600">{error}</p>
                         </div>
                     )}
 
-                    {/* Bottom action bar */}
-                    <div
-                        style={{
-                            padding: "16px 24px",
-                            borderTop: "1px solid rgba(15,23,42,0.06)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: "16px",
-                            flexWrap: "wrap",
-                            background: "#fafafa",
-                        }}
-                    >
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <ImageIcon size={16} color="#94a3b8" />
-                            <span style={{ fontSize: "13px", color: "#94a3b8" }}>
-                                Upload a standard T1-weighted or T2-weighted MRI slice
-                            </span>
+                    <div className="p-4 px-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
+                        <div className="flex items-center gap-2">
+                            <ImageIcon size={18} className="text-gray-400" />
+                            <span className="text-sm text-gray-500">Upload a standard T1-weighted or T2-weighted MRI slice</span>
                         </div>
-
-                        <div style={{ display: "flex", gap: "12px" }}>
+                        <div className="flex gap-3 w-full sm:w-auto">
                             {state === "preview" && (
-                                <button
-                                    id="analyze-btn"
-                                    onClick={analyze}
-                                    style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        padding: "12px 28px",
-                                        background: "linear-gradient(135deg, #0077B6, #00B4D8)",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "99px",
-                                        fontSize: "15px",
-                                        fontWeight: 600,
-                                        cursor: "pointer",
-                                        boxShadow: "0px 4px 16px rgba(0,119,182,0.30)",
-                                        transition: "all 0.2s ease",
-                                    }}
-                                >
-                                    Analyze Scan <ArrowRight size={16} />
-                                </button>
+                                <Button onClick={analyze} variant="primary" className="w-full sm:w-auto">
+                                    Analyze Scan <ArrowRight size={16} className="ml-2" />
+                                </Button>
                             )}
-
-                            {(state === "analyzing") && (
-                                <button
-                                    disabled
-                                    style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        padding: "12px 28px",
-                                        background: "rgba(0,119,182,0.4)",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "99px",
-                                        fontSize: "15px",
-                                        fontWeight: 600,
-                                        cursor: "not-allowed",
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            width: 16,
-                                            height: 16,
-                                            border: "2px solid rgba(255,255,255,0.4)",
-                                            borderTop: "2px solid white",
-                                            borderRadius: "50%",
-                                            display: "inline-block",
-                                            animation: "spin-slow 0.8s linear infinite",
-                                        }}
-                                    />
+                            {state === "analyzing" && (
+                                <Button disabled variant="primary" className="w-full sm:w-auto opacity-70 cursor-not-allowed">
                                     Analyzing...
-                                </button>
+                                </Button>
                             )}
-
                             {state === "idle" && (
-                                <button
-                                    onClick={() => inputRef.current?.click()}
-                                    style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        padding: "12px 24px",
-                                        background: "rgba(0,119,182,0.08)",
-                                        color: "#0077B6",
-                                        border: "1px solid rgba(0,119,182,0.20)",
-                                        borderRadius: "99px",
-                                        fontSize: "15px",
-                                        fontWeight: 600,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    <Upload size={16} /> Browse Files
-                                </button>
+                                <Button onClick={() => inputRef.current?.click()} variant="secondary" className="w-full sm:w-auto">
+                                    <Upload size={16} className="mr-2" /> Browse Files
+                                </Button>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Info cards below */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                        gap: "16px",
-                        marginTop: "32px",
-                    }}
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     {[
                         { icon: "🧠", title: "Any MRI Format", desc: "Works with any standard brain MRI slice image." },
                         { icon: "⚡", title: "Instant Results", desc: "AI analysis completes in under 3 seconds." },
                         { icon: "🔒", title: "Private & Secure", desc: "Images are never stored or transmitted." },
                     ].map((c) => (
-                        <div
-                            key={c.title}
-                            style={{
-                                padding: "20px",
-                                background: "#fff",
-                                border: "1px solid rgba(15,23,42,0.07)",
-                                borderRadius: "14px",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "8px",
-                            }}
-                        >
-                            <span style={{ fontSize: "24px" }}>{c.icon}</span>
-                            <p style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{c.title}</p>
-                            <p style={{ fontSize: "13px", color: "#64748b", lineHeight: 1.5 }}>{c.desc}</p>
+                        <div key={c.title} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm text-center sm:text-left">
+                            <span className="text-3xl mb-4 block">{c.icon}</span>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">{c.title}</h3>
+                            <p className="text-sm text-gray-500 leading-relaxed">{c.desc}</p>
                         </div>
                     ))}
                 </div>
             </main>
 
-            {/* Hidden file input */}
             <input
                 ref={inputRef}
                 type="file"
                 id="file-input"
                 accept={ACCEPTED_TYPES.join(",")}
                 onChange={onInputChange}
-                style={{ display: "none" }}
+                className="hidden"
             />
-
             <Footer />
         </div>
     )

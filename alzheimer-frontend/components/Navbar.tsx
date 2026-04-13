@@ -1,183 +1,161 @@
-"use client"
+"use client";
+import { cn } from "@/lib/utils";
+import { Menu as IconMenu2, X as IconX } from "lucide-react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import Link from "next/link";
+import React, { useState } from "react";
+import { Button } from "./button";
+import { Logo } from "./logo";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
-import { Menu, X, Brain } from "lucide-react"
-
-const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/#about", label: "About" },
-    { href: "/#disease", label: "Disease Info" },
-    { href: "/upload", label: "Analyze MRI" },
-]
-
-/**
- * Navbar — sticky translucent nav following the dataweb pill-navbar pattern.
- */
-export default function Navbar() {
-    const pathname = usePathname()
-    const [mobileOpen, setMobileOpen] = useState(false)
-
-    return (
-        <nav className="navbar">
-            {/* Inner layout: logo + links */}
-            <div
-                style={{
-                    width: "100%",
-                    maxWidth: "1200px",
-                    margin: "0 auto",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "0 24px",
-                }}
-            >
-                {/* Logo */}
-                <Link
-                    href="/"
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        textDecoration: "none",
-                    }}
-                >
-                    <div
-                        style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: "10px",
-                            background: "linear-gradient(135deg, #0077B6 0%, #00B4D8 100%)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <Brain size={20} color="white" strokeWidth={1.8} />
-                    </div>
-                    <span
-                        style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontWeight: 700,
-                            fontSize: "18px",
-                            color: "#0A1628",
-                            letterSpacing: "-0.02em",
-                        }}
-                    >
-                        NeuroScan <span style={{ color: "#0077B6" }}>AI</span>
-                    </span>
-                </Link>
-
-                {/* Desktop Links */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                    }}
-                    className="hidden md:flex"
-                >
-                    {navLinks.map((link) => {
-                        const isActive = pathname === link.href
-                        return (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                style={{
-                                    padding: "8px 16px",
-                                    fontSize: "14px",
-                                    fontWeight: 500,
-                                    color: isActive ? "#0077B6" : "#334155",
-                                    textDecoration: "none",
-                                    borderRadius: "8px",
-                                    background: isActive ? "rgba(0,119,182,0.07)" : "transparent",
-                                    transition: "all 0.15s ease",
-                                }}
-                            >
-                                {link.label}
-                            </Link>
-                        )
-                    })}
-
-                    <Link href="/upload" className="btn-primary" style={{ marginLeft: "12px", padding: "10px 22px", fontSize: "14px" }}>
-                        Start Analysis
-                    </Link>
-                </div>
-
-                {/* Mobile Menu Button */}
-                <button
-                    className="md:hidden"
-                    onClick={() => setMobileOpen(!mobileOpen)}
-                    style={{
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: "4px",
-                        color: "#334155",
-                    }}
-                    aria-label="Toggle menu"
-                >
-                    {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-                </button>
-            </div>
-
-            {/* Mobile Dropdown */}
-            {mobileOpen && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "64px",
-                        left: "16px",
-                        right: "16px",
-                        background: "white",
-                        borderRadius: "16px",
-                        border: "1px solid rgba(15,23,42,0.10)",
-                        boxShadow: "0px 8px 24px rgba(0,0,0,0.10)",
-                        padding: "12px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "4px",
-                        zIndex: 200,
-                    }}
-                >
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={() => setMobileOpen(false)}
-                            style={{
-                                padding: "12px 16px",
-                                fontSize: "14px",
-                                fontWeight: 500,
-                                color: "#334155",
-                                textDecoration: "none",
-                                borderRadius: "10px",
-                                transition: "background 0.15s ease",
-                            }}
-                        >
-                            {link.label}
-                        </Link>
-                    ))}
-                    <Link
-                        href="/upload"
-                        onClick={() => setMobileOpen(false)}
-                        style={{
-                            marginTop: "8px",
-                            padding: "12px 16px",
-                            background: "#0077B6",
-                            color: "white",
-                            borderRadius: "10px",
-                            fontSize: "14px",
-                            fontWeight: 600,
-                            textAlign: "center",
-                            textDecoration: "none",
-                        }}
-                    >
-                        Start Analysis
-                    </Link>
-                </div>
-            )}
-        </nav>
-    )
+interface NavbarProps {
+  navItems: { name: string; link: string }[];
+  visible: boolean;
 }
+
+export const Navbar = () => {
+  const navItems = [
+    { name: "Home", link: "/" },
+    { name: "Upload MRI", link: "/upload" },
+    { name: "Results", link: "/results" },
+  ];
+
+  const { scrollY } = useScroll();
+  const [visible, setVisible] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setVisible(latest > 100);
+  });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="w-full mt-4 fixed top-2 inset-x-0 z-50"
+    >
+      <DesktopNav visible={visible} navItems={navItems} />
+      <MobileNav visible={visible} navItems={navItems} />
+    </motion.div>
+  );
+};
+
+const DesktopNav = ({ navItems, visible }: NavbarProps) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <motion.div
+      onMouseLeave={() => setHoveredIndex(null)}
+      animate={{
+        width: visible ? "50%" : "80%",
+        backgroundColor: visible ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.5)",
+        backdropFilter: visible ? "blur(10px)" : "blur(5px)",
+        y: visible ? 4 : 0,
+        boxShadow: visible ? "0 10px 30px -10px rgba(0,0,0,0.1)" : "0 0 0 transparent",
+      }}
+      initial={{ width: "80%", scale: 0.95, opacity: 0 }}
+      whileInView={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className={cn("hidden lg:flex flex-row self-center items-center justify-between py-3 mx-auto px-8 rounded-full relative z-[100]")}
+    >
+      <Logo />
+      <motion.div
+        className="lg:flex flex-row flex-1 items-center justify-center space-x-2 text-sm"
+        animate={{ scale: 1, justifyContent: visible ? "flex-end" : "center" }}
+      >
+        {navItems.map((navItem, idx) => (
+          <motion.div key={`nav-item-${idx}`} onHoverStart={() => setHoveredIndex(idx)} className="relative">
+            <Link className="text-black/90 relative px-3 py-1.5 transition-colors" href={navItem.link}>
+              <span className="relative z-10">{navItem.name}</span>
+              {hoveredIndex === idx && (
+                <motion.div
+                  layoutId="menu-hover"
+                  className="absolute inset-0 rounded-full"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, background: "linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%)", boxShadow: "0 4px 15px rgba(0,0,0,0.05)" }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.05 }}
+                />
+              )}
+            </Link>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <AnimatePresence mode="popLayout" initial={false}>
+        {!visible && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.2 } }}
+            exit={{ opacity: 0, x: 20, transition: { duration: 0.2 } }}
+            className="flex items-center gap-2"
+          >
+            <Button as={Link} href="/upload" variant="primary">Start Analysis</Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+const MobileNav = ({ navItems, visible }: NavbarProps) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <motion.div
+        animate={{
+          backdropFilter: "blur(16px)",
+          background: visible ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.8)",
+          width: visible ? "85%" : "90%",
+          y: visible ? 4 : 0,
+          borderRadius: open ? 24 : 9999,
+          padding: "12px 20px",
+          boxShadow: visible ? "0 10px 30px -10px rgba(0,0,0,0.1)" : "0 0 0 transparent",
+        }}
+        initial={{ width: "85%", scale: 0.95, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className={cn("flex relative flex-col lg:hidden w-full justify-between items-center max-w-[calc(100vw-2rem)] mx-auto z-50")}
+      >
+        <div className="flex flex-row justify-between items-center w-full">
+          <Logo />
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            {open ? (
+              <IconX className="text-black/90" onClick={() => setOpen(!open)} />
+            ) : (
+              <IconMenu2 className="text-black/90" onClick={() => setOpen(!open)} />
+            )}
+          </motion.div>
+        </div>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="flex rounded-2xl absolute top-16 backdrop-blur-xl bg-white/95 inset-x-0 z-50 flex-col items-start justify-start gap-4 w-full px-6 py-6 shadow-lg"
+            >
+              {navItems.map((navItem, idx) => (
+                <motion.div
+                  key={`link=${idx}`}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.05 } }}
+                  whileHover={{ x: 5 }}
+                >
+                  <Link href={navItem.link} onClick={() => setOpen(false)} className="relative text-black/90 hover:text-black transition-colors">
+                    <motion.span className="block">{navItem.name}</motion.span>
+                  </Link>
+                </motion.div>
+              ))}
+              <div className="mt-2 flex w-full flex-col gap-2 border-t border-neutral-200 pt-3">
+                <Button as={Link} href="/upload" variant="primary" className="w-full justify-center">Start Analysis</Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </>
+  );
+};

@@ -4,3 +4,7 @@
 /models/efficientnet_b0.pth
 /models/vgg16.pth
 .env.local
+
+.DS_Store
+
+/zenit
