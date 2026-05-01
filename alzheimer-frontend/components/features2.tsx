@@ -10,7 +10,6 @@ import {
   Activity,
   FileText,
   Database,
-  Stethoscope,
   Microscope,
   Cpu,
   ArrowLeftCircle

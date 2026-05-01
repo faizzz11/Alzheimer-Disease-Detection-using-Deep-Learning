@@ -30,7 +30,7 @@ export function Footer() {
           <div className="flex items-start flex-col">
             <Logo />
             <h2 className="text-2xl font-medium mt-8 max-w-md">
-              AI-powered Alzheimer's disease detection for clinical analysis.
+              AI-powered Alzheimer&apos;s disease detection for clinical analysis.
             </h2>
           </div>
 

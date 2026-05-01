@@ -55,7 +55,7 @@ export async function getPrediction(file: File): Promise<PredictionResult> {
             body: formData,
             // No Content-Type header — browser sets multipart/form-data boundary automatically
         })
-    } catch (networkError) {
+    } catch {
         // fetch() itself threw — backend probably not running
         throw new Error(
             "Cannot connect to the analysis server. " +

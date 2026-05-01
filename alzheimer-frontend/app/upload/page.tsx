@@ -127,7 +127,7 @@ export default function UploadPage() {
                         Upload MRI Brain Scan
                     </h1>
                     <p className="text-lg text-gray-500 max-w-xl">
-                        Upload a brain MRI image and let our AI classify the Alzheimer's stage instantly.
+                        Upload a brain MRI image and let our AI classify the Alzheimer&apos;s stage instantly.
                     </p>
                 </div>
 

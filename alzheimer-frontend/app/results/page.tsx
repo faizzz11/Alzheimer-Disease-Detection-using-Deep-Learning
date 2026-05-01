@@ -13,7 +13,7 @@ import {
     Clock,
     Download,
 } from "lucide-react"
-import { Navbar } from "@/components/navbar"
+
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/button"
 import { type PredictionResult, stageSeverity, classColors } from "@/lib/api"
@@ -229,6 +229,7 @@ export default function ResultsPage() {
                                     <Brain size={14} className="text-[#EE602C]"/> Source MRI Scan
                                 </div>
                                 <div className="relative w-full aspect-square bg-black flex items-center justify-center">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     {imageUrl ? <img src={imageUrl} alt="MRI" className="object-contain w-full h-full" /> : <Brain size={48} className="text-white opacity-20" />}
                                 </div>
                             </div>

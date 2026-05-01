@@ -87,7 +87,6 @@ const LightningIcon = ({ className }: { className?: string }) => (
 
 const OrbitingAvatars = () => {
   const orbitData = React.useMemo(() => {
-    const radius = 180;
     const speed = 25;
     const iconCount = avatarColors.length;
     const angleStep = 360 / iconCount;
