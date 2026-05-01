@@ -18,6 +18,80 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/button"
 import { type PredictionResult, stageSeverity, classColors } from "@/lib/api"
 
+const medicalAdvice: Record<string, { analysis: string, precautions: string[], diet: string[], recommendations: string[] }> = {
+    "Non Demented": {
+        analysis: "The MRI scan indicates normal brain volume and structure typical for the patient's age. No significant cortical atrophy or ventricular enlargement associated with Alzheimer's disease was detected.",
+        precautions: [
+            "Maintain regular physical exercise to promote cardiovascular and brain health.",
+            "Engage in mentally stimulating activities (e.g., puzzles, reading, learning new skills).",
+            "Ensure adequate sleep (7-8 hours per night) to support cognitive function."
+        ],
+        diet: [
+            "Follow a Mediterranean or MIND diet rich in leafy greens, berries, nuts, and whole grains.",
+            "Consume omega-3 fatty acids from fish (like salmon) or supplements.",
+            "Limit intake of saturated fats, processed foods, and refined sugars."
+        ],
+        recommendations: [
+            "Routine health check-ups and monitoring.",
+            "Maintain active social engagement.",
+            "Re-evaluate if any memory concerns arise."
+        ]
+    },
+    "Very Mild Dementia": {
+        analysis: "The MRI scan shows subtle signs of early cerebral changes, potentially including mild hippocampal atrophy. These findings may correlate with subjective memory complaints but do not severely impact daily functioning.",
+        precautions: [
+            "Consult a neurologist for a comprehensive cognitive assessment.",
+            "Establish a consistent daily routine to minimize confusion.",
+            "Organize important items (keys, wallet) in designated places."
+        ],
+        diet: [
+            "Strict adherence to the MIND diet (Mediterranean-DASH Intervention for Neurodegenerative Delay).",
+            "Increase intake of antioxidants (berries, dark chocolate, spinach).",
+            "Stay hydrated and avoid excessive alcohol consumption."
+        ],
+        recommendations: [
+            "Consider joining a support group for early-stage memory loss.",
+            "Keep a diary to track memory lapses and share with healthcare providers.",
+            "Schedule a follow-up MRI in 6-12 months as advised by a physician."
+        ]
+    },
+    "Mild Dementia": {
+        analysis: "The MRI scan reveals noticeable cortical atrophy and enlargement of the ventricles. There is evidence of volume loss in the hippocampus and temporal lobes, consistent with a clinical diagnosis of mild Alzheimer's disease.",
+        precautions: [
+            "Supervision may be needed for complex tasks like managing finances or medication.",
+            "Ensure home safety by removing tripping hazards and improving lighting.",
+            "Consider medical alert systems or GPS tracking devices if wandering is a concern."
+        ],
+        diet: [
+            "Nutrient-dense meals divided into smaller, frequent portions if appetite decreases.",
+            "Focus on foods high in Vitamin E and Omega-3s.",
+            "Ensure adequate water intake, as the sensation of thirst may diminish."
+        ],
+        recommendations: [
+            "Immediate consultation with a neurologist for potential pharmacological interventions.",
+            "Engage in structured occupational therapy.",
+            "Family members should begin planning for future care and legal/financial matters."
+        ]
+    },
+    "Moderate Dementia": {
+        analysis: "The MRI scan demonstrates significant global cerebral atrophy, severe hippocampal volume loss, and pronounced ventricular dilation. These structural changes are strongly indicative of moderate to advanced Alzheimer's disease.",
+        precautions: [
+            "Continuous supervision is required for daily activities and personal safety.",
+            "Implement strict home safety measures, including locks on hazardous storage and preventing access to stoves.",
+            "Establish a calm, quiet environment to reduce agitation and anxiety."
+        ],
+        diet: [
+            "Provide soft, easy-to-swallow foods to prevent choking.",
+            "Offer high-calorie, nutritious snacks and smoothies if weight loss is observed.",
+            "Use adaptive eating utensils and contrast-colored plates to assist with meals."
+        ],
+        recommendations: [
+            "Comprehensive care plan involving neurologists, geriatricians, and caregivers.",
+            "Consider in-home nursing care or specialized memory care facilities.",
+            "Focus on maximizing quality of life, comfort, and providing emotional support."
+        ]
+    }
+}
 function ConfidenceRing({ value }: { value: number }) {
     const pct = Math.round(value * 100)
     const r = 52
@@ -83,215 +157,36 @@ export default function ResultsPage() {
         if (!result || pdfLoading) return
         setPdfLoading(true)
         try {
-            const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+            const [{ default: jsPDF }, htmlToImage] = await Promise.all([
                 import("jspdf"),
-                import("html2canvas"),
+                import("html-to-image"),
             ])
 
+            const element = document.getElementById("pdf-report-content")
+            if (!element) throw new Error("PDF content element not found")
+
+            // Wait a moment to ensure images are loaded
+            await new Promise(resolve => setTimeout(resolve, 500))
+
+            const imgData = await htmlToImage.toJpeg(element, {
+                quality: 0.95,
+                pixelRatio: 2,
+                backgroundColor: "#ffffff",
+                skipFonts: true,
+                style: {
+                    transform: "none",
+                }
+            })
+
             const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-            const pageW = pdf.internal.pageSize.getWidth()
-            const pageH = pdf.internal.pageSize.getHeight()
-            const margin = 20
-            const usableW = pageW - margin * 2
+            const pdfWidth = pdf.internal.pageSize.getWidth()
+            const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth
 
-            // Header Banner
-            pdf.setFillColor(238, 96, 44) // #EE602C (NeuroScan Orange)
-            pdf.rect(0, 0, pageW, 30, "F")
-            
-            // Header Content
-            pdf.setTextColor(255, 255, 255)
-            pdf.setFontSize(22)
-            pdf.setFont("helvetica", "bold")
-            pdf.text("NeuroScan AI", margin, 20)
-            
-            pdf.setFontSize(10)
-            pdf.setFont("helvetica", "normal")
-            pdf.text("Clinical MRI Analysis Report", margin + 65, 19)
-
-            pdf.setFontSize(8)
-            pdf.text(`Generated: ${new Date(result.timestamp).toLocaleString()}`, pageW - margin, 19, { align: "right" })
-
-            let y = 42
-
-            // Patient / Scan Details Box
-            pdf.setFillColor(248, 250, 252)
-            pdf.roundedRect(margin, y, usableW, 24, 3, 3, "F")
-            pdf.setDrawColor(226, 232, 240)
-            pdf.setLineWidth(0.5)
-            pdf.roundedRect(margin, y, usableW, 24, 3, 3, "S")
-
-            pdf.setTextColor(100, 116, 139)
-            pdf.setFontSize(8)
-            pdf.text("MODEL VERSION", margin + 6, y + 8)
-            pdf.text("INFERENCE TIME", margin + 70, y + 8)
-            pdf.text("STATUS", margin + 135, y + 8)
-
-            pdf.setTextColor(15, 23, 42)
-            pdf.setFontSize(11)
-            pdf.setFont("helvetica", "bold")
-            pdf.text(result.modelVersion, margin + 6, y + 16)
-            pdf.text(result.inferenceTimeMs ? `${result.inferenceTimeMs} ms` : "< 100 ms", margin + 70, y + 16)
-            pdf.setTextColor(16, 185, 129) // Emerald-500
-            pdf.text("Completed", margin + 135, y + 16)
-
-            y += 34
-
-            // Layout split: Left for Results, Right for Image
-            const imgW = 65
-            const imgH = 65
-            const imgX = pageW - margin - imgW
-            const leftPanelW = imgX - margin - 15
-
-            if (imageUrl) {
-                try {
-                    const img = new window.Image()
-                    img.crossOrigin = "anonymous"
-                    await new Promise<void>((resolve, reject) => {
-                        img.onload = () => resolve()
-                        img.onerror = reject
-                        img.src = imageUrl
-                    })
-                    const canvas = document.createElement("canvas")
-                    canvas.width = img.naturalWidth || 256
-                    canvas.height = img.naturalHeight || 256
-                    const ctx = canvas.getContext("2d")!
-                    ctx.drawImage(img, 0, 0)
-                    const dataUrl = canvas.toDataURL("image/jpeg", 1.0) // high quality
-
-                    pdf.setDrawColor(203, 213, 225)
-                    pdf.setLineWidth(0.5)
-                    pdf.rect(imgX, y, imgW, imgH, "S")
-                    pdf.addImage(dataUrl, "JPEG", imgX, y, imgW, imgH)
-
-                    pdf.setTextColor(100, 116, 139)
-                    pdf.setFontSize(7)
-                    pdf.setFont("helvetica", "normal")
-                    pdf.text("SOURCE MRI SCAN", imgX + imgW / 2, y + imgH + 5, { align: "center" })
-                } catch {
-                    // ignore image load error
-                }
-            }
-
-            // Primary Prediction Section
-            const stageColor = stageSeverity[result.prediction]
-            const hexToRgb = (hex: string) => {
-                const m = hex.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i)
-                return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [100, 100, 100]
-            }
-            const [r, g, b] = hexToRgb(stageColor?.color ?? "#64748b")
-
-            pdf.setFontSize(9)
-            pdf.setTextColor(100, 116, 139)
-            pdf.setFont("helvetica", "bold")
-            pdf.text("PRIMARY PREDICTION", margin, y + 4)
-
-            y += 14
-            pdf.setFontSize(22)
-            pdf.setTextColor(r, g, b)
-            const lines = pdf.splitTextToSize(result.prediction, leftPanelW)
-            pdf.text(lines, margin, y)
-
-            const textHeight = lines.length * 9
-            y += textHeight + 2
-
-            // Severity Badge
-            pdf.setFillColor(r, g, b)
-            pdf.roundedRect(margin, y, 32, 7, 1.5, 1.5, "F")
-            pdf.setTextColor(255, 255, 255)
-            pdf.setFontSize(8)
-            pdf.text(stageColor?.label ?? "Reviewed", margin + 16, y + 5, { align: "center" })
-
-            y += 18
-            
-            // Confidence Score
-            pdf.setTextColor(100, 116, 139)
-            pdf.setFontSize(9)
-            pdf.setFont("helvetica", "normal")
-            pdf.text("OVERALL CONFIDENCE", margin, y)
-            
-            y += 8
-            pdf.setFontSize(26)
-            pdf.setFont("helvetica", "bold")
-            pdf.setTextColor(238, 96, 44)
-            pdf.text(`${Math.round(result.confidence * 100)}%`, margin, y)
-
-            // Adjust y below the image/prediction block
-            y = Math.max(y + 15, imgX ? 42 + 34 + imgH + 15 : y + 15)
-
-            // Probability Distribution section
-            pdf.setDrawColor(226, 232, 240)
-            pdf.line(margin, y, pageW - margin, y)
-            y += 12
-
-            pdf.setFontSize(12)
-            pdf.setFont("helvetica", "bold")
-            pdf.setTextColor(15, 23, 42)
-            pdf.text("Probability Distribution", margin, y)
-            
-            y += 5
-            pdf.setFontSize(8)
-            pdf.setFont("helvetica", "normal")
-            pdf.setTextColor(100, 116, 139)
-            pdf.text("Comprehensive confidence metrics across all defined classification stages.", margin, y)
-            
-            y += 12
-
-            const probEntries = Object.entries(result.probabilities).sort((a, b) => b[1] - a[1])
-            for (const [cls, prob] of probEntries) {
-                const pct = Math.round(prob * 100)
-                const color = classColors[cls] ?? "#EE602C"
-                const [cr, cg, cb] = hexToRgb(color)
-                const isTop = cls === result.prediction
-
-                pdf.setFontSize(9)
-                pdf.setFont("helvetica", isTop ? "bold" : "normal")
-                pdf.setTextColor(isTop ? 15 : 71, isTop ? 23 : 85, isTop ? 42 : 105)
-                pdf.text(cls, margin, y)
-
-                pdf.setFont("helvetica", "bold")
-                pdf.setTextColor(cr, cg, cb)
-                pdf.text(`${pct}%`, pageW - margin, y, { align: "right" })
-
-                y += 3
-                const barH = 5
-                pdf.setFillColor(241, 245, 249)
-                pdf.roundedRect(margin, y, usableW, barH, 2.5, 2.5, "F")
-
-                if (pct > 0) {
-                    pdf.setFillColor(cr, cg, cb)
-                    pdf.roundedRect(margin, y, (usableW * pct) / 100, barH, 2.5, 2.5, "F")
-                }
-                y += 14
-            }
-
-            y += 8
-
-            // Disclaimer Box
-            pdf.setFillColor(255, 247, 237)
-            pdf.setDrawColor(253, 186, 116)
-            pdf.setLineWidth(0.5)
-            pdf.roundedRect(margin, y, usableW, 20, 3, 3, "FD")
-            
-            pdf.setTextColor(194, 65, 12)
-            pdf.setFontSize(9)
-            pdf.setFont("helvetica", "bold")
-            pdf.text("Clinical Disclaimer", margin + 4, y + 7)
-            
-            pdf.setFontSize(8)
-            pdf.setFont("helvetica", "normal")
-            const disclaimer = "This AI-generated analysis is intended strictly as a decision support tool. It is NOT a definitive clinical diagnosis. Results must be independently verified by a qualified radiologist or neurologist."
-            const dLines = pdf.splitTextToSize(disclaimer, usableW - 8)
-            pdf.text(dLines, margin + 4, y + 12)
-
-            // Footer
-            pdf.setFontSize(7)
-            pdf.setTextColor(148, 163, 184)
-            pdf.text("NeuroScan AI Detection System  •  Confidential Medical Document", pageW / 2, pageH - 10, { align: "center" })
-
+            pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight)
             pdf.save(`neuroscan-mri-report-${Date.now()}.pdf`)
         } catch (err) {
             console.error("PDF export failed:", err)
-            alert("PDF export failed. Please try again.")
+            alert(`PDF export failed: ${(err as Error).message || "Unknown error"}. Please try again.`)
         } finally {
             setPdfLoading(false)
         }
@@ -309,8 +204,156 @@ export default function ResultsPage() {
     const probEntries = Object.entries(result.probabilities) as [string, number][]
 
     return (
-        <div className="bg-gray-50 min-h-screen">
-            <Navbar />
+        <div className="bg-gray-50 min-h-screen relative overflow-x-hidden">
+            <div className="absolute top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none opacity-0">
+                <div id="pdf-report-content" className="w-[794px] h-[1123px] bg-white text-gray-900 flex flex-col box-border relative overflow-hidden font-sans">
+                    {/* Header */}
+                    <div className="bg-[#EE602C] text-white p-8 flex justify-between items-end">
+                        <div>
+                            <h1 className="text-4xl font-extrabold leading-none mb-2">NeuroScan AI</h1>
+                            <p className="text-orange-100 text-base font-medium">Clinical MRI Analysis & Diagnostic Report</p>
+                        </div>
+                        <div className="text-right text-orange-100 text-sm font-medium">
+                            <p>Generated on {new Date(result.timestamp).toLocaleString()}</p>
+                            <p>Document ID: NS-{Date.now().toString().slice(-6)}</p>
+                        </div>
+                    </div>
+
+                    {/* Main Content grid */}
+                    <div className="flex-1 grid grid-cols-12 gap-8 p-10">
+                        {/* Left Column (4/12) */}
+                        <div className="col-span-4 flex flex-col gap-6">
+                            {/* Image */}
+                            <div className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                                <div className="p-3 border-b border-gray-200 bg-gray-100 text-[11px] font-bold text-gray-600 uppercase tracking-wider flex items-center gap-2">
+                                    <Brain size={14} className="text-[#EE602C]"/> Source MRI Scan
+                                </div>
+                                <div className="relative w-full aspect-square bg-black flex items-center justify-center">
+                                    {imageUrl ? <img src={imageUrl} alt="MRI" className="object-contain w-full h-full" /> : <Brain size={48} className="text-white opacity-20" />}
+                                </div>
+                            </div>
+
+                            {/* Scan Info */}
+                            <div className="border border-gray-200 rounded-2xl p-5 bg-gray-50 flex flex-col gap-4 shadow-sm">
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Model Version</p>
+                                    <p className="text-sm font-semibold text-gray-900">{result.modelVersion}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Inference Time</p>
+                                    <p className="text-sm font-semibold text-gray-900">{result.inferenceTimeMs ? `${result.inferenceTimeMs} ms` : "< 100 ms"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Analysis Status</p>
+                                    <p className="text-sm font-semibold text-emerald-600 flex items-center gap-1.5"><CheckCircle2 size={14}/> Completed</p>
+                                </div>
+                            </div>
+
+                            {/* Overall Confidence */}
+                            <div className="border border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-white shadow-sm mt-auto">
+                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Overall Confidence</p>
+                                <div className="text-5xl font-extrabold text-[#EE602C] mb-2">{Math.round(result.confidence * 100)}%</div>
+                                <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">AI Certainty Score</p>
+                            </div>
+                        </div>
+
+                        {/* Right Column (8/12) */}
+                        <div className="col-span-8 flex flex-col gap-6">
+                            {/* Prediction */}
+                            <div className="pb-5 border-b border-gray-100">
+                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Primary AI Diagnosis</p>
+                                <h2 className="text-4xl font-extrabold mb-3" style={{ color: severity?.color ?? "#0f172a" }}>
+                                    {result.prediction}
+                                </h2>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold"
+                                     style={{ background: severity?.bg ?? "rgba(238,96,44,0.1)", color: severity?.color ?? "#EE602C" }}>
+                                    <div className="w-2 h-2 rounded-full" style={{ background: severity?.color ?? "#EE602C" }} />
+                                    {severity?.label ?? "Reviewed"}
+                                </div>
+                            </div>
+
+                            {/* Probabilities */}
+                            <div>
+                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Probability Distribution</p>
+                                <div className="flex flex-col gap-3">
+                                    {probEntries.sort((a, b) => b[1] - a[1]).map(([className, prob]) => {
+                                        const pct = Math.round(prob * 100)
+                                        const color = classColors[className] ?? "#EE602C"
+                                        const isTop = result.prediction === className
+                                        return (
+                                            <div key={className} className="flex items-center gap-4">
+                                                <div className={`w-36 text-xs ${isTop ? 'font-bold' : 'font-medium text-gray-600'} truncate`}>{className}</div>
+                                                <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+                                                </div>
+                                                <div className={`w-10 text-right text-xs ${isTop ? 'font-bold' : 'font-semibold text-gray-500'}`}>{pct}%</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Medical Advice */}
+                            <div className="flex flex-col gap-5 mt-2 bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-sm">
+                                {(() => {
+                                    const advice = medicalAdvice[result.prediction] || medicalAdvice["Non Demented"]
+                                    return (
+                                        <>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-gray-900 mb-1.5 flex items-center gap-2">Detailed Analysis</h3>
+                                                <p className="text-xs text-gray-600 leading-relaxed">{advice.analysis}</p>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div>
+                                                    <h3 className="text-sm font-bold text-gray-900 mb-2">Precautions & Safety</h3>
+                                                    <ul className="text-[11px] text-gray-600 space-y-2 list-disc pl-3">
+                                                        {advice.precautions.map((p, i) => <li key={i}>{p}</li>)}
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-sm font-bold text-gray-900 mb-2">Dietary Guidelines</h3>
+                                                    <ul className="text-[11px] text-gray-600 space-y-2 list-disc pl-3">
+                                                        {advice.diet.map((d, i) => <li key={i}>{d}</li>)}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-gray-900 mb-2">Clinical Recommendations</h3>
+                                                <ul className="text-[11px] text-gray-600 space-y-2 list-disc pl-3">
+                                                    {advice.recommendations.map((r, i) => <li key={i}>{r}</li>)}
+                                                </ul>
+                                            </div>
+                                        </>
+                                    )
+                                })()}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-auto p-10 pt-0 flex flex-col gap-8">
+                        {/* Disclaimer */}
+                        <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl flex gap-3 items-start text-orange-800">
+                            <AlertCircle size={18} className="shrink-0 mt-0.5 text-orange-600" />
+                            <p className="text-[11px] leading-relaxed">
+                                <strong>Clinical Disclaimer:</strong> This AI-generated analysis is intended strictly as a decision support tool and is NOT a definitive clinical diagnosis. Results must be independently verified by a qualified radiologist or neurologist before making any medical decisions or establishing care plans.
+                            </p>
+                        </div>
+
+                        {/* Signature Block */}
+                        <div className="flex justify-between items-end border-t border-gray-200 pt-6">
+                            <div className="text-[11px] text-gray-400 font-medium leading-relaxed">
+                                Confidential Medical Document<br/>
+                                NeuroScan AI Detection System
+                            </div>
+                            <div className="w-64 border-t border-gray-400 pt-2 text-center">
+                                <p className="text-sm font-bold text-gray-900">Attending Physician / Neurologist</p>
+                                <p className="text-xs text-gray-500 mt-0.5 font-medium">Signature & Date</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <main className="pt-32 pb-20 max-w-6xl mx-auto px-6">
                 <div className="mb-8">

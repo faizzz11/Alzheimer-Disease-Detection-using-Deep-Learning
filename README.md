@@ -364,12 +364,9 @@ Unfreeze last 2 blocks → train end-to-end at a smaller learning rate
 | TypeScript | 5 | Type safety |
 | Tailwind CSS | 4 | Utility-first styling |
 | Lucide React | latest | Icon library |
-| jsPDF | latest | Professional PDF report generation |
+| jsPDF | latest | PDF document generation |
+| html-to-image | latest | Modern React-to-PDF layout rendering |
 | Framer Motion | 12 | Animations |
-
----------|---------|
-| Streamlit | Web UI framework |
-| Matplotlib | Probability bar charts |
 
 ---
 
@@ -509,7 +506,7 @@ Submit an MRI brain scan for classification.
 - Animated probability distribution bars for all 4 classes
 - Uploaded MRI scan preview
 - Real inference time display
-- **Export PDF Report** button — generates a professional medical-style PDF using `jsPDF` (no buttons appear in the PDF, clean A4 layout with header, scan image, probabilities, and medical disclaimer)
+- **Export PDF Report** button — generates a professional, single-page clinical PDF report using `html-to-image` and `jspdf`. Features a beautiful A4 layout with patient details, predicted stages, structured clinical advice (precautions, diet, recommendations), and a physician signature block.
 - "Analyze Another Scan" button
 
 ---
